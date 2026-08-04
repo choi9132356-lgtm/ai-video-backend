@@ -32,6 +32,7 @@ public class OrderController {
     public ResponseEntity<?> placeOrder(
             @RequestParam("userId") String userId,
             @RequestParam("videoStyle") String videoStyle,
+            @RequestParam("plan") String plan,
             @RequestParam("price") Long price,
             @RequestParam("bgmYn") boolean bgmYn,
             @RequestParam("narrationYn") boolean narrationYn,
@@ -39,7 +40,7 @@ public class OrderController {
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         try {
             Order savedOrder = orderService.saveOrderWithFiles(
-                    userId, videoStyle, price, bgmYn, narrationYn, textStory, files
+                    userId, videoStyle, plan, price, bgmYn, narrationYn, textStory, files
             );
             return ResponseEntity.ok(savedOrder);
         } catch (Exception e) {

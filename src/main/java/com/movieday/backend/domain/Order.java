@@ -20,6 +20,9 @@ public class Order {
     private String videoStyle; // 영상 스타일
 
     @Column(nullable = false)
+    private String plan; // 상품 등급 (BASIC / STANDARD / PREMIUM)
+
+    @Column(nullable = false)
     private Long price; // 결제 금액
 
     @Column(nullable = false)

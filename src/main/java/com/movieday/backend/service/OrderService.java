@@ -30,7 +30,7 @@ public class OrderService {
     private String uploadPath;
 
     @Transactional
-    public Order saveOrderWithFiles(String userId, String videoStyle, Long price,
+    public Order saveOrderWithFiles(String userId, String videoStyle, String plan, Long price,
                                     boolean bgmYn, boolean narrationYn, String textStory,
                                     List<MultipartFile> files) throws IOException {
 
@@ -40,6 +40,7 @@ public class OrderService {
         Order order = new Order();
         order.setUserId(userId);
         order.setVideoStyle(videoStyle);
+        order.setPlan(plan);
         order.setPrice(price);
         order.setBgmYn(bgmYn);
         order.setNarrationYn(narrationYn);
@@ -108,6 +109,7 @@ public class OrderService {
             dto.setId(order.getId());
             dto.setUserId(order.getUserId());
             dto.setVideoStyle(order.getVideoStyle());
+            dto.setPlan(order.getPlan());
             dto.setPrice(order.getPrice());
             dto.setBgmYn(order.isBgmYn());
             dto.setNarrationYn(order.isNarrationYn());
@@ -146,6 +148,7 @@ public class OrderService {
             dto.setId(order.getId());
             dto.setUserId(order.getUserId());
             dto.setVideoStyle(order.getVideoStyle());
+            dto.setPlan(order.getPlan());
             dto.setPrice(order.getPrice());
             dto.setBgmYn(order.isBgmYn());
             dto.setNarrationYn(order.isNarrationYn());

@@ -7,6 +7,7 @@ import java.util.List;
 public class OrderRequestDto {
     private String userId;
     private String videoStyle;
+    private String plan;
     private Long price;
     private boolean bgmYn;
     private boolean narrationYn;

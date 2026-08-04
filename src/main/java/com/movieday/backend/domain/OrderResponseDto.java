@@ -9,6 +9,7 @@ public class OrderResponseDto {
     private Long id;
     private String userId;
     private String videoStyle;
+    private String plan;
     private Long price;
     private boolean bgmYn;
     private boolean narrationYn;
