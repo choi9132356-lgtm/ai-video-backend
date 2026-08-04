@@ -23,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // 개발 단계 프론트엔드 허용
 public class OrderController {
 
     private final OrderService orderService;
