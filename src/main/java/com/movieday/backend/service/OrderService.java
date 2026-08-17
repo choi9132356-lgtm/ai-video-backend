@@ -24,6 +24,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderFileRepository orderFileRepository;
+    private final EmailService emailService;
 
     // 💡 application.properties에 설정한 경로를 동적으로 주입받습니다!
     @Value("${file.upload-dir}")
@@ -92,6 +93,14 @@ public class OrderService {
 
                 orderFileRepository.save(orderFile);
             }
+        }
+
+        // 3. 관리자에게 새 주문 이메일 알림
+        try {
+            emailService.sendNewOrderNotification(savedOrder);
+        } catch (Exception e) {
+            // 이메일 실패해도 주문은 정상 처리
+            System.err.println("이메일 발송 실패: " + e.getMessage());
         }
 
         return savedOrder;
