@@ -4,14 +4,20 @@ import com.movieday.backend.domain.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     @Value("${admin.notify.email}")
     private String adminEmail;
@@ -19,8 +25,11 @@ public class EmailService {
     /**
      * 새 주문 접수 시 관리자에게 이메일 알림 발송
      */
+    @Async
     public void sendNewOrderNotification(Order order) {
+        try {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
         message.setTo(adminEmail);
         message.setSubject("[무비데이] 새 주문 접수 - " + order.getVideoStyle() + " 스타일");
         message.setText(
@@ -39,5 +48,9 @@ public class EmailService {
             "https://www.movieday.co.kr/admin"
         );
         mailSender.send(message);
+        log.info("관리자 이메일 알림 발송 완료 - 주문번호: {}", order.getId());
+        } catch (Exception e) {
+            log.error("이메일 발송 실패 - 주문번호: {}, 에러: {}", order.getId(), e.getMessage());
+        }
     }
 }
