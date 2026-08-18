@@ -63,4 +63,39 @@ public class EmailService {
             log.error("이메일 발송 실패 - 주문번호: {}, 에러: {}", order.getId(), e.getMessage());
         }
     }
+
+    /**
+     * 새 회원가입 시 관리자에게 이메일 알림 발송
+     */
+    @Async
+    public void sendSignupNotification(String userId, String name, String email, String phone) {
+        try {
+            String url = "https://api.resend.com/emails";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + resendApiKey);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("from", "무비데이 <onboarding@resend.dev>");
+            body.put("to", adminEmail);
+            body.put("subject", "[무비데이] 새 회원가입 - " + name);
+            body.put("text",
+                "👤 새로운 회원이 가입했습니다!\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "▶ 아이디: " + userId + "\n" +
+                "▶ 이름: " + name + "\n" +
+                "▶ 이메일: " + email + "\n" +
+                "▶ 연락처: " + phone + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+            );
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, request, String.class);
+
+            log.info("회원가입 알림 발송 완료 - 신규회원: {}", userId);
+        } catch (Exception e) {
+            log.error("회원가입 알림 발송 실패 - 신규회원: {}, 에러: {}", userId, e.getMessage());
+        }
+    }
 }

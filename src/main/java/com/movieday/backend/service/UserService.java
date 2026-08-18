@@ -3,14 +3,17 @@ package com.movieday.backend.service;
 import com.movieday.backend.domain.User;
 import com.movieday.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor // Repository 리모컨을 자동으로 연결해 줍니다.
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     // DB에 있는 모든 유저 목록을 가져오는 메서드
     public List<User> getAllUsers() {
@@ -33,7 +36,16 @@ public class UserService {
         user.setModifyId(user.getUserId());
         user.setModifyDt(java.time.LocalDateTime.now());
 
-        return userRepository.save(user); // .save()가 JPA의 INSERT 쿼리 리모컨입니다!
+        User savedUser = userRepository.save(user);
+
+        // 관리자에게 회원가입 알림 메일 발송
+        try {
+            emailService.sendSignupNotification(user.getUserId(), user.getName(), user.getEmail(), user.getPhone());
+        } catch (Exception e) {
+            log.error("회원가입 알림 메일 발송 실패: {}", e.getMessage());
+        }
+
+        return savedUser;
     }
 
     // 🔑 로그인 검증 로직 추가
