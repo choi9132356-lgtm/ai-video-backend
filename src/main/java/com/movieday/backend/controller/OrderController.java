@@ -106,40 +106,26 @@ public class OrderController {
     }
 
 
-    // 🎯 [컨트롤러 전용] 파일이 없어도 에러 없이 정상적으로 상태만 바뀔 수 있도록 수정된 API
+    // 🎯 [수정] 상태 변경 + 완료 링크 저장 API (JSON 방식)
     @PostMapping("/admin/status-update")
-    public ResponseEntity<?> updateOrderStatus(
-            @RequestParam("id") Long id,
-            @RequestParam("orderStatus") String orderStatus,
-            jakarta.servlet.http.HttpServletRequest request) { // 💡 웹 요청 객체를 통째로 받음
+    public ResponseEntity<?> updateOrderStatus(@RequestBody java.util.Map<String, Object> body) {
 
-        System.out.println("====== 관리자 작업 완료 및 상태 변경 ======");
+        Long id = Long.valueOf(body.get("id").toString());
+        String orderStatus = body.get("orderStatus").toString();
+        String completedFileUrl = body.getOrDefault("completedFileUrl", "").toString();
+
+        System.out.println("====== 관리자 상태 변경 ======");
         System.out.println("주문 ID: " + id);
         System.out.println("변경 상태: " + orderStatus);
-
-        MultipartFile file = null;
-        // 요청이 multipart 형태이고 'file'이 존재할 때만 안전하게 꺼냅니다.
-        if (request instanceof org.springframework.web.multipart.MultipartHttpServletRequest) {
-            org.springframework.web.multipart.MultipartHttpServletRequest multipartRequest =
-                    (org.springframework.web.multipart.MultipartHttpServletRequest) request;
-            file = multipartRequest.getFile("file");
-        }
-
-        if (file != null && !file.isEmpty()) {
-            System.out.println("업로드된 완료 파일명: " + file.getOriginalFilename());
-        } else {
-            System.out.println("업로드된 완료 파일 없음 (상태만 변경)");
-        }
+        System.out.println("완료 링크: " + completedFileUrl);
         System.out.println("========================================");
 
         try {
-            // 💡 여기서 아래에 있는 Service의 메서드를 호출해 진짜 데이터베이스를 고칩니다.
-            orderService.updateOrderStatusWithFile(id, orderStatus, file);
-            return ResponseEntity.ok().body("주문 상태 및 완료 파일 업데이트 성공");
+            orderService.updateOrderStatusWithUrl(id, orderStatus, completedFileUrl);
+            return ResponseEntity.ok().body("주문 상태 업데이트 성공");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("서버 내부 에러: " + e.getMessage());
-
         }
     }
 

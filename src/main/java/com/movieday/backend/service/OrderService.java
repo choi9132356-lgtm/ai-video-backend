@@ -187,38 +187,21 @@ public class OrderService {
         order.setOrderStatus(orderStatus);
     }
 
-    // 🎯 [서비스 전용] 상태 변경과 함께 완료 파일을 물리 하드디스크에 저장하는 로직
+    // 🎯 [수정] 상태 변경 + 완료 링크 URL 저장
     @jakarta.transaction.Transactional
-    public void updateOrderStatusWithFile(Long id, String orderStatus, MultipartFile file) throws Exception {
-        // 1. 해당 주문이 존재하는지 먼저 조회
+    public void updateOrderStatusWithUrl(Long id, String orderStatus, String completedFileUrl) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. ID: " + id));
 
-        // 2. 상태 업데이트
         order.setOrderStatus(orderStatus);
 
-        // 3. 만약 상태가 'COMPLETED'(제작완료)이고 파일이 넘어왔다면 파일 저장 진행
-        if ("COMPLETED".equals(orderStatus) && file != null && !file.isEmpty()) {
-            File folder = new File(uploadPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-
-            // 파일명 중복 방지를 위해 타임스탬프 결합
-            String originalFileName = file.getOriginalFilename();
-            String storedFileName = System.currentTimeMillis() + "_" + originalFileName;
-
-            // 물리 파일 저장
-            File saveFile = new File(uploadPath, storedFileName);
-            file.transferTo(saveFile);
-
-            // 4. 엔티티에 완료 파일명 기록 (DB에 반영됨)
-            order.setCompletedFileName(storedFileName);
-
-            // 정보 수정자/수정일시 세팅
-            order.setModifyId("ADMIN");
-            order.setModifyDt(LocalDateTime.now());
+        // 제작 완료 시 URL 저장
+        if ("COMPLETED".equals(orderStatus) && completedFileUrl != null && !completedFileUrl.isBlank()) {
+            order.setCompletedFileName(completedFileUrl);
         }
+
+        order.setModifyId("ADMIN");
+        order.setModifyDt(LocalDateTime.now());
     }
 
 
